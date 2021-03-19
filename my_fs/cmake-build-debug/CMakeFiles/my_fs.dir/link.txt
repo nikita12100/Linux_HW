@@ -1,0 +1,1 @@
+/usr/bin/cc -g   CMakeFiles/my_fs.dir/src/main.c.o CMakeFiles/my_fs.dir/src/my_filesystem.c.o  -o ../bin/my_fs 

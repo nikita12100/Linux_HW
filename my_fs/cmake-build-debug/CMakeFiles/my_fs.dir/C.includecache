@@ -1,0 +1,22 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/nikita/CLionProjects/fat_filesystem/src/my_filesystem.c
+my_filesystem.h
+/home/nikita/CLionProjects/fat_filesystem/src/my_filesystem.h
+
+/home/nikita/CLionProjects/fat_filesystem/src/my_filesystem.h
+string.h
+-
+stdlib.h
+-
+stdio.h
+-
+unistd.h
+-
+
