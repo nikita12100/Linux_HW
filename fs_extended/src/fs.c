@@ -1,20 +1,20 @@
 #include <fs.h>
 
-PortabilityControlValues get_platform_values() {
-	return (PortabilityControlValues) {
-		.size_type_size = sizeof(size_t),
-		.superblock_type_size = sizeof(Superblock),
+SuperBlock get_superblock_params() {
+	return (SuperBlock) {
+		.int_size = sizeof(int),
+		.superblock_type_size = sizeof(SuperBlock),
 		.inode_type_size = sizeof(INode),
-		.inodemain_type_size = sizeof(INodeMain),
-		.directoryitem_type_size = sizeof(DirectoryItem)
+		.inode_type_size = sizeof(FirstINode),
+		.directory_size = sizeof(Directory)
 	};
 }
 
-char is_platform_compatible(const PortabilityControlValues vals) {
-	PortabilityControlValues mine = get_platform_values();
-	return mine.size_type_size == vals.size_type_size &&
+char check_types_size(const SuperBlock vals) {
+    SuperBlock mine = get_superblock_params();
+	return mine.int_size == vals.int_size &&
 			mine.superblock_type_size == vals.superblock_type_size &&
 			mine.inode_type_size == vals.inode_type_size &&
-			mine.inodemain_type_size == vals.inodemain_type_size &&
-			mine.directoryitem_type_size == vals.directoryitem_type_size;
+			mine.inode_type_size == vals.inode_type_size &&
+			mine.directory_size == vals.directory_size;
 }

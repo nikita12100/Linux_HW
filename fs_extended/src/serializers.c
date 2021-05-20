@@ -1,5 +1,4 @@
 #include <string.h>
-#include <unistd.h>
 #include <stdlib.h>
 #include <net.h>
 #include <manage.h>
@@ -58,5 +57,5 @@ _SLZ_SERIALIZER(FsOpRemove_args, slz_FsOpRemove, catch, _SLZ_ARRAY(path.string, 
 _SLZ_SERIALIZER(FsOpStat_args, slz_FsOpStat, catch, _SLZ_ARRAY(path.string, path.length, char, catch))
 _SLZ_SERIALIZER(FsOpReadDir_args, slz_FsOpReadDir, catch, _SLZ_ARRAY(path.string, path.length, char, catch))
 _SLZ_SERIALIZER(String, slz_String, catch, _SLZ_ARRAY(string, length, char, catch))
-_SLZ_SERIALIZER(FsOpStat_response, slz_FsOpStatResponse, catch, _SLZ_ARRAY(blocks, blocks_count, size_t, catch))
-_SLZ_SERIALIZER(DirectoryContent, slz_DirectoryContent, catch, _SLZ_ARRAY(items, items_count, DirectoryItem, catch))
+_SLZ_SERIALIZER(FsOpStat_response, slz_FsOpStatResponse, catch, _SLZ_ARRAY(blocks, blocks_count, int, catch))
+_SLZ_SERIALIZER(DirectoryContent, slz_DirectoryContent, catch, _SLZ_ARRAY(items, items_count, Directory, catch))

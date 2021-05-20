@@ -79,13 +79,6 @@ _if(body, {\
     }\
 }
 
-#define _SLZ_FIELD_RAW(field_type_name, field_name, ...) {\
-    if (!strcmp("read", context)) {\
-        _SLZ_SERIALIZER_READER_IMPL(field_type_name, &value->field_name, _unused, 1, __VA_ARGS__)\
-    } else if (!strcmp("write", context)) {\
-        _SLZ_SERIALIZER_WRITER_IMPL(field_type_name, &value->field_name, _unused, 1, __VA_ARGS__)\
-    }\
-}
 
 #define _SLZ_SERIALIZER(type_name, func_name_prefix, error_handler, ...) \
 _SLZ_SERIALIZER_READER(type_name, func_name_prefix ## _read, error_handler, 0, 1, __VA_ARGS__)\
@@ -101,8 +94,8 @@ _SLZ_SERIALIZER_WRITER(type_name, func_name_prefix ## _write, _unused, _unused, 
 
 
 
-char safe_read(int fd, void* buf, size_t len, void (*error_handler) (const char*));
-char safe_write(int fd, void* buf, size_t len, void (*error_handler) (const char*));
+char safe_read(int fd, void* buf, int len, void (*error_handler) (const char*));
+char safe_write(int fd, void* buf, int len, void (*error_handler) (const char*));
 
 
 
@@ -124,18 +117,17 @@ enum FsOpType {
     FSOP_ReadDir
 };
 
-#pragma pack(push, 1)
 
 typedef struct FsOpRead {
     String path;
-    size_t offset;
-    size_t length;
+    int offset;
+    int length;
 } FsOpRead_args;
 
 typedef struct FsOpWrite {
     String path;
-    size_t offset;
-    size_t length;
+    int offset;
+    int length;
     char* data;
 } FsOpWrite_args;
 
@@ -170,22 +162,14 @@ typedef struct NetFsOperation {
 } NetFsOperation;
 
 typedef struct FsOpStatResponse {
-    size_t size;
-    size_t blocks_count;
-    size_t* blocks;
+    int size;
+    int blocks_count;
+    int* blocks;
 } FsOpStat_response;
 _SLZ_SERIALIZER_DEF(FsOpStat_response, slz_FsOpStatResponse)
 
 _SLZ_SERIALIZER_DEF(DirectoryContent, slz_DirectoryContent)
 
-#pragma pack(pop)
-
-void fsop_Read(FsDescriptors,FsOpRead_args*,int);
-void fsop_Write(FsDescriptors,FsOpWrite_args*,int);
-void fsop_Create(FsDescriptors,FsOpCreate_args*,int);
-void fsop_Remove(FsDescriptors,FsOpRemove_args*,int);
-void fsop_Stat(FsDescriptors,FsOpStat_args*,int);
-void fsop_ReadDir(FsDescriptors,FsOpReadDir_args*,int);
 
 _SLZ_SERIALIZER_DEF(FsOpRead_args, slz_FsOpRead);
 _SLZ_SERIALIZER_DEF(FsOpWrite_args, slz_FsOpWrite);

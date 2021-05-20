@@ -6,22 +6,20 @@
 #include <string.h>
 #include <syslog.h>
 
-#define _FLG_ERRLOG_STDERR 1u
-#define _FLG_ERRLOG_SYSLOG 3u
 
 void (*global_interceptor) (const char*);
-unsigned char error_logging_flags = _FLG_ERRLOG_STDERR | _FLG_ERRLOG_SYSLOG;
+unsigned char error_logging_flags = 1u | 3u;
 
 void die(const char* string) {
 	if (errno) {
-	    if (error_logging_flags & _FLG_ERRLOG_SYSLOG)
+	    if (error_logging_flags & 3u)
 		    syslog(LOG_ERR, "%s: %m", string);
-	    if (error_logging_flags & _FLG_ERRLOG_STDERR)
+	    if (error_logging_flags & 1u)
 	        perror(string);
 
 		if (global_interceptor) {
 		    const char* err_str = strerror(errno);
-		    size_t len = strlen(err_str) + strlen(string) + 2;
+		    int len = strlen(err_str) + strlen(string) + 2;
 		    char* full_str = malloc(len);
 		    if (!full_str)
 		        exit(1);
@@ -35,9 +33,9 @@ void die(const char* string) {
 }
 
 void die_fatal(const char* string) {
-    if (error_logging_flags & _FLG_ERRLOG_SYSLOG)
+    if (error_logging_flags & 3u)
 	    syslog(LOG_ERR, "%s\n", string);
-    if (error_logging_flags & _FLG_ERRLOG_STDERR)
+    if (error_logging_flags & 1u)
         fprintf(stderr, "%s\n", string);
 
 	if (global_interceptor) {
@@ -48,9 +46,9 @@ void die_fatal(const char* string) {
 
 char warn(const char* string) {
     if (errno) {
-        if (error_logging_flags & _FLG_ERRLOG_SYSLOG)
+        if (error_logging_flags & 3u)
             syslog(LOG_WARNING, "%s: %m", string);
-        if (error_logging_flags & _FLG_ERRLOG_STDERR)
+        if (error_logging_flags & 1u)
             perror(string);
         
         errno = 0;
@@ -66,22 +64,22 @@ void intercept_errors(void (*interceptor) (const char* )) {
 void configure_error_logging(char to_stderr, char to_syslog) {
     error_logging_flags = 0;
     if (to_stderr)
-        error_logging_flags |= _FLG_ERRLOG_STDERR;
+        error_logging_flags |= 1u;
     if (to_syslog)
-        error_logging_flags |= _FLG_ERRLOG_SYSLOG;
+        error_logging_flags |= 3u;
 }
 
-size_t get_page_size() {
+int get_page_size() {
 	long res = sysconf(_SC_PAGESIZE);
 	die("Internal error");
-	return (size_t) res;
+	return (int) res;
 }
 
 Path split_path(const char* path) {
 	if (*path != '/')
 		die_fatal("Invalid path");
 
-	size_t k = 0, len = 0;
+	int k = 0, len = 0;
 	for (const char* p = path; *p; ++p) {
 		if (*p == '/' && *(p+1) == '/')
 			die_fatal("Invalid path");

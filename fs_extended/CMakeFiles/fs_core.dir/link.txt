@@ -1,0 +1,2 @@
+/usr/bin/ar qc libfs_core.a  CMakeFiles/fs_core.dir/src/fs.c.o CMakeFiles/fs_core.dir/src/manage.c.o CMakeFiles/fs_core.dir/src/myutil.c.o
+/usr/bin/ranlib libfs_core.a

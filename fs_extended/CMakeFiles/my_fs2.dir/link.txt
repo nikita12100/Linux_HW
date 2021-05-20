@@ -1,0 +1,1 @@
+/usr/bin/cc    CMakeFiles/my_fs2.dir/src/main.c.o  -o my_fs2  -lpthread libfs_net.a libfs_core.a -lpthread 

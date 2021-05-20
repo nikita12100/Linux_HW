@@ -1,0 +1,5 @@
+/home/nikita/CLionProjects/Linux_HW/fs_extended/CMakeFiles/rebuild_cache.dir
+/home/nikita/CLionProjects/Linux_HW/fs_extended/CMakeFiles/edit_cache.dir
+/home/nikita/CLionProjects/Linux_HW/fs_extended/CMakeFiles/my_fs2.dir
+/home/nikita/CLionProjects/Linux_HW/fs_extended/CMakeFiles/fs_net.dir
+/home/nikita/CLionProjects/Linux_HW/fs_extended/CMakeFiles/fs_core.dir

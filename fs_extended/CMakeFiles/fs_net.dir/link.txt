@@ -1,0 +1,2 @@
+/usr/bin/ar qc libfs_net.a  CMakeFiles/fs_net.dir/src/net.c.o CMakeFiles/fs_net.dir/src/serializers.c.o
+/usr/bin/ranlib libfs_net.a

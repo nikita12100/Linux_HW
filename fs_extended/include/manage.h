@@ -9,30 +9,28 @@
 
 typedef struct FsDescriptors {
 	void* container;
-	Superblock* superblock;
+	SuperBlock* superblock;
 	unsigned char* lookup_table;
-	size_t root_inode;
+	int root_inode;
 } FsDescriptors;
 
 typedef struct DirectoryContent {
-	size_t items_count;
-	DirectoryItem* items;
+	int items_count;
+	Directory* items;
 } DirectoryContent;
 
 FsDescriptors open_fs(const char*);
-FsDescriptors init_fs(const char*, size_t);
+FsDescriptors init_fs(const char*, int);
 void close_fs(FsDescriptors);
-size_t init_new_file(FsDescriptors, unsigned char);
-size_t read_file(FsDescriptors, size_t, size_t, size_t, void*);
-size_t read_entire_file(FsDescriptors, size_t, void*);
-void purge_file(FsDescriptors, size_t);
-void write_file(FsDescriptors, size_t, size_t, size_t, void*);
-void append_file(FsDescriptors, size_t, size_t, void*);
-DirectoryContent read_directory(FsDescriptors, size_t);
+int init_new_file(FsDescriptors, unsigned char);
+int read_file(FsDescriptors, int, int, int, void*);
+void purge_file(FsDescriptors, int);
+void write_file(FsDescriptors, int, int, int, void*);
+DirectoryContent read_directory(FsDescriptors, int);
 void free_directory(DirectoryContent);
-size_t locate_path(FsDescriptors, Path);
-void append_directory(FsDescriptors, size_t, DirectoryItem);
-size_t remove_from_directory(FsDescriptors fs, size_t, const char*);
-size_t get_blocks_required(FsDescriptors, size_t);
-size_t get_file_size(FsDescriptors, size_t);
-size_t* trace_file_blocks(FsDescriptors, size_t);
+int locate_path(FsDescriptors, Path);
+void append_directory(FsDescriptors, int, Directory);
+int remove_from_directory(FsDescriptors fs, int, const char*);
+int get_blocks_required(FsDescriptors, int);
+int get_file_size(FsDescriptors, int);
+int* trace_file_blocks(FsDescriptors, int);

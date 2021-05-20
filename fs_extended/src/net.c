@@ -21,10 +21,10 @@
 
 
 
-char safe_read(int fd, void* buf, size_t len, void (*error_handler) (const char*)) {
-    size_t ready = 0;
+char safe_read(int fd, void* buf, int len, void (*error_handler) (const char*)) {
+    int ready = 0;
     while (ready < len) {
-        ssize_t actually_got = read(fd, buf + ready, len - ready);
+        uint actually_got = read(fd, buf + ready, len - ready);
         char err = errno != 0;
         error_handler("IO error");
         if (err || !actually_got)
@@ -34,10 +34,10 @@ char safe_read(int fd, void* buf, size_t len, void (*error_handler) (const char*
     return 1;
 }
 
-char safe_write(int fd, void* buf, size_t len, void (*error_handler) (const char*)) {
-    size_t ready = 0;
+char safe_write(int fd, void* buf, int len, void (*error_handler) (const char*)) {
+    int ready = 0;
     while (ready < len) {
-        ssize_t actually_put = write(fd, buf + ready, len - ready);
+        uint actually_put = write(fd, buf + ready, len - ready);
         char err = errno != 0;
         error_handler("IO error");
         if (err)
@@ -134,12 +134,12 @@ void write_empty_error(int sockd) {
 void process_operation(int sockd, FsDescriptors fds, NetFsOperation *op) {
     if ((op)->type == FSOP_Read) {
         Path path = split_path((const char *) &(op)->Read_args.path.string);
-        size_t inode = locate_path(fds, path);
+        int inode = locate_path(fds, path);
 
         char* data = malloc((unsigned long) &(op)->Read_args.length);
         die("Memory allocation failed");
 
-        size_t read = read_file(fds, inode, (size_t) &(op)->Read_args.offset, (size_t) &(op)->Read_args.length, data);
+        int read = read_file(fds, inode, (int) &(op)->Read_args.offset, (int) &(op)->Read_args.length, data);
         String result = {read, data};
 
         write_empty_error(sockd);
@@ -153,9 +153,9 @@ void process_operation(int sockd, FsDescriptors fds, NetFsOperation *op) {
     }
     if ((op)->type == FSOP_Write) {
         Path path = split_path((const char *) &(op)->Write_args.path.string);
-        size_t inode = locate_path(fds, path);
+        int inode = locate_path(fds, path);
 
-        write_file(fds, inode, (size_t) &(op)->Write_args.offset, (size_t) &(op)->Write_args.length, &(op)->Write_args.data);
+        write_file(fds, inode, (int) &(op)->Write_args.offset, (int) &(op)->Write_args.length, &(op)->Write_args.data);
 
         write_empty_error(sockd);
         free_path(path);
@@ -164,16 +164,16 @@ void process_operation(int sockd, FsDescriptors fds, NetFsOperation *op) {
         Path path = split_path(&(op)->Create_args.path.string);
 
         --path.count;
-        size_t dir_inode = locate_path(fds, path);
+        int dir_inode = locate_path(fds, path);
         const char* name = path.parts[path.count];
         ++path.count;
 
         if (strlen(name) >= FILE_NAME_LENGTH)
             die_fatal("Too long file name");
 
-        size_t file_inode = init_new_file(fds, &(op)->Create_args.flags);
-        DirectoryItem item = {.inode = file_inode};
-        for (size_t i = 0; *name; ++name)
+        int file_inode = init_new_file(fds, &(op)->Create_args.flags);
+        Directory item = {.inode = file_inode};
+        for (int i = 0; *name; ++name)
             item.name[i++] = *name;
         append_directory(fds, dir_inode, item);
 
@@ -185,11 +185,11 @@ void process_operation(int sockd, FsDescriptors fds, NetFsOperation *op) {
         Path path = split_path(&(op)->Remove_args.path.string);
 
         --path.count;
-        size_t dir_inode = locate_path(fds, path);
+        int dir_inode = locate_path(fds, path);
         const char* name = path.parts[path.count];
         ++path.count;
 
-        size_t file_inode = remove_from_directory(fds, dir_inode, name);
+        int file_inode = remove_from_directory(fds, dir_inode, name);
         purge_file(fds, file_inode);
 
         write_empty_error(sockd);
@@ -199,9 +199,9 @@ void process_operation(int sockd, FsDescriptors fds, NetFsOperation *op) {
     if ((op)->type == FSOP_Stat) {
         Path path = split_path(&(op)->Stat_args.path.string);
 
-        size_t inode = locate_path(fds, path);
-        size_t size = get_file_size(fds, inode);
-        size_t blocks = get_blocks_required(fds, size);
+        int inode = locate_path(fds, path);
+        int size = get_file_size(fds, inode);
+        int blocks = get_blocks_required(fds, size);
 
         FsOpStat_response response;
 
@@ -221,7 +221,7 @@ void process_operation(int sockd, FsDescriptors fds, NetFsOperation *op) {
     if ((op)->type == FSOP_ReadDir) {
         Path path = split_path((const char *) &(op)->ReadDir_args.path.string);
 
-        size_t dir_inode = locate_path(fds, path);
+        int dir_inode = locate_path(fds, path);
         DirectoryContent content = read_directory(fds, dir_inode);
 
         write_empty_error(sockd);

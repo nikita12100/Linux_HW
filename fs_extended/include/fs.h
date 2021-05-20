@@ -4,40 +4,33 @@
 
 #define FILE_NAME_LENGTH 256
 
-#pragma pack(push, 1)
-
 typedef struct INode {
-	size_t continuation_inode;
+    char name[FILE_NAME_LENGTH];
+    unsigned int file_size;
+	int first_file_block;
 } INode;
 
-typedef struct INodeMain {
+typedef struct FirstINode {
 	INode node;
-	size_t size;
-	unsigned int links_count;
+	int size;
 	unsigned char flags;
-	size_t last_inode;
-} INodeMain;
+	int last_inode;
+} FirstINode;
 
-typedef struct DirectoryItem {
-	size_t inode;
+typedef struct Directory {
 	char name[FILE_NAME_LENGTH];
-} DirectoryItem;
+	int inode;
+} Directory;
 
-typedef struct PortabilityControlValues {
-	unsigned int size_type_size;
-	unsigned int superblock_type_size;
-	unsigned int inode_type_size;
-	unsigned int inodemain_type_size;
-	unsigned int directoryitem_type_size;
-} PortabilityControlValues;
+typedef struct SuperBlock {
+	int size;
+	int total_block_count;
+    unsigned int int_size;
+    unsigned int superblock_type_size;
+    unsigned int inode_type_size;
+    unsigned int directory_size;
+} SuperBlock;
 
-typedef struct Superblock {
-	size_t block_size;
-	size_t blocks_count;
-	PortabilityControlValues portability_control;
-} Superblock;
 
-#pragma pack(pop)
-
-char is_platform_compatible(PortabilityControlValues);
-PortabilityControlValues get_platform_values();
+char check_types_size(SuperBlock);
+SuperBlock get_superblock_params();

@@ -22,7 +22,7 @@ void check_socket_status(int sockd) {
     free_string(err);
 }
 
-size_t try_read(int sockd, const char *path, size_t offset, size_t length, char *buffer) {
+int try_read(int sockd, const char *path, int offset, int length, char *buffer) {
     NetFsOperation op;
     op.type = FSOP_Read;
     op.Read_args.path = to_string(path);
@@ -43,7 +43,7 @@ size_t try_read(int sockd, const char *path, size_t offset, size_t length, char 
     }
 
     memcpy(buffer, response.string, response.length);
-    size_t real_len = response.length;
+    int real_len = response.length;
     free_string(response);
     return real_len;
 }
@@ -84,27 +84,24 @@ void create(int sockd, const char *s_path, unsigned char flags) {
 
 int main(int argc, char **argv) {
     char *help_text = "Example backend command:\n"
-                      "./my_fs backend run <port> <path_to_fs>\n"
-                      "./my_fs backend init <path_to_fs> <size>\n\n"
+                      "./my_fs backend run (port) (path_to_fs)\n"
+                      "./my_fs backend init (path_to_fs) (size)\n\n"
                       "Example client command:\n"
-                      "./my_fs client <address> <command> <arguments> \n"
+                      "./my_fs client (address) (command) (arguments) \n"
                       "Where example of commands with arguments: \n"
-                      "  init <size> \n"
-                      "  mkdir <path> \n"
-                      "  mkfile <path> \n"
-                      "  write <path> [offset] \n"
-                      "  rm <path> \n"
-                      "  ls <path> \n"
-                      "  cat <path> \n";
+                      "  mkdir (path) \n"
+                      "  mkfile (path) \n"
+                      "  write (path) \n"
+                      "  rm (path) \n"
+                      "  ls (path) \n"
+                      "  cat (path) \n";
 
     printf("%s\n", help_text);
 
-    configure_error_logging(1, 0);
-
-    if (argc != 5) {
-        printf("%s\n", help_text);
-        exit(0);
-    }
+//    if (argc != 5) {
+//        printf("%s\n", help_text);
+//        exit(0);
+//    }
 
     if (!strcasecmp(argv[1], "backend")) {
 
@@ -115,7 +112,7 @@ int main(int argc, char **argv) {
             }
 
             FsDescriptors fs = init_fs(argv[3], size);
-            printf("Ready: %lu blocks of %lu bytes\n", fs.superblock->blocks_count, fs.superblock->block_size);
+            printf("Ready: %lu blocks of %lu bytes\n", fs.superblock->total_block_count, fs.superblock->size);
             close_fs(fs);
             return 0;
         }
@@ -178,7 +175,7 @@ int main(int argc, char **argv) {
                 die_fatal("Connection problems");
             }
 
-            for (size_t i = 0; i < content.items_count; ++i) {
+            for (int i = 0; i < content.items_count; ++i) {
                 printf("%lu %s\n", content.items[i].inode, content.items[i].name);
             }
 
@@ -187,10 +184,10 @@ int main(int argc, char **argv) {
         }
         if (strcasecmp("cat", argv[3]) == 0) {
             int sockd = initialize_client(argv[2]);
-            const size_t buf_size = 1024 * 1024 * 2;
+            const int buf_size = 1024 * 1024 * 2;
             void *buffer = malloc(buf_size);
-            size_t read_bytes;
-            size_t total_read_bytes = 0;
+            int read_bytes;
+            int total_read_bytes = 0;
 
             while (read_bytes = try_read(sockd, argv[4], total_read_bytes, buf_size, buffer)) {
                 fwrite(buffer, 1, read_bytes, stdout);
@@ -202,17 +199,17 @@ int main(int argc, char **argv) {
         }
         if (strcasecmp("write", argv[3]) == 0) {
             int sockd = initialize_client(argv[2]);
-            size_t offset = 0;
+            int offset = 0;
             NetFsOperation op;
             op.type = FSOP_Write;
             op.Write_args.path = to_string(argv[4]);
 
-            const size_t buf_size = 1024 * 1024 * 2;
+            const int buf_size = 1024 * 1024 * 2;
             void *buffer = malloc(buf_size);
             op.Write_args.data = buffer;
 
             while (!feof(stdin)) {
-                size_t read_bytes = fread(buffer, 1, buf_size, stdin);
+                int read_bytes = fread(buffer, 1, buf_size, stdin);
                 if (ferror(stdin)) {
                     die_fatal("Error occurred while reading from input stream");
                 }
